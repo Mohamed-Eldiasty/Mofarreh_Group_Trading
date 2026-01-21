@@ -46,28 +46,45 @@ export default function LoginPage({ language }: LoginPageProps) {
     e.preventDefault();
     setIsLoading(true);
 
+    console.log("🔐 Attempting login with:", { username, passwordLength: password.length });
+
     try {
       // محاولة تسجيل الدخول أولاً
-      await signIn("password", { 
+      console.log("📝 Trying signIn...");
+      const signInResult = await signIn("password", { 
         flow: "signIn",
         username, 
         password 
       });
       
+      console.log("✅ SignIn successful:", signInResult);
       toast.success(language === "ar" ? "تم تسجيل الدخول بنجاح! ✅" : "Login successful! ✅");
-      navigate("/admin");
+      
+      // انتظر قليلاً قبل التوجيه للتأكد من تحديث الحالة
+      setTimeout(() => {
+        navigate("/admin");
+      }, 500);
     } catch (signInError: any) {
+      console.log("❌ SignIn failed:", signInError.message);
+      
       // إذا فشل تسجيل الدخول، نحاول إنشاء حساب جديد
       try {
-        await signIn("password", { 
+        console.log("📝 Trying signUp...");
+        const signUpResult = await signIn("password", { 
           flow: "signUp",
           username, 
           password 
         });
         
+        console.log("✅ SignUp successful:", signUpResult);
         toast.success(language === "ar" ? "تم إنشاء الحساب بنجاح! ✅" : "Account created successfully! ✅");
-        navigate("/admin");
+        
+        // انتظر قليلاً قبل التوجيه للتأكد من تحديث الحالة
+        setTimeout(() => {
+          navigate("/admin");
+        }, 500);
       } catch (signUpError: any) {
+        console.error("❌ Both signIn and signUp failed:", signUpError);
         // فشل كلا المحاولتين
         toast.error(
           language === "ar" 
@@ -182,6 +199,13 @@ export default function LoginPage({ language }: LoginPageProps) {
           <p className="text-xs text-gray-600 italic">
             {content.note}
           </p>
+        </div>
+
+        {/* Debug Info */}
+        <div className="mt-4 text-center text-xs text-gray-500">
+          {language === "ar" 
+            ? "💡 افتح Console في المتصفح لرؤية تفاصيل تسجيل الدخول" 
+            : "💡 Open Browser Console to see login details"}
         </div>
       </div>
     </div>
