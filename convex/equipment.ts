@@ -171,3 +171,21 @@ export const generateUploadUrl = mutation({
     return await ctx.storage.generateUploadUrl();
   },
 });
+
+// إحصائيات المعدات
+export const stats = query({
+  args: {},
+  handler: async (ctx) => {
+    const all = await ctx.db.query("equipment").collect();
+    const active = all.filter(e => e.status === "active").length;
+    const sold = all.filter(e => e.status === "sold").length;
+    const pending = all.filter(e => e.status === "pending").length;
+    
+    return {
+      total: all.length,
+      active,
+      sold,
+      pending,
+    };
+  },
+});

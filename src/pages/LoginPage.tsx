@@ -16,12 +16,7 @@ export default function LoginPage({ language }: LoginPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useAuthActions();
   const navigate = useNavigate();
-  const createDemoAdmin = useMutation(api.seedData.createDemoAdmin);
-
-  // إنشاء حساب تجريبي عند أول تحميل
-  useEffect(() => {
-    createDemoAdmin({}).catch(() => {});
-  }, [createDemoAdmin]);
+  // لا حاجة لإنشاء حساب تجريبي - سيتم التسجيل يدوياً
 
   const t = {
     ar: {
@@ -51,20 +46,33 @@ export default function LoginPage({ language }: LoginPageProps) {
     setIsLoading(true);
 
     try {
+      // محاولة إنشاء حساب جديد أولاً (للمرة الأولى فقط)
       await signIn("password", { 
-        flow: "signIn",
+        flow: "signUp",
         username, 
         password 
       });
       
-      toast.success(language === "ar" ? "تم تسجيل الدخول بنجاح!" : "Login successful!");
+      toast.success(language === "ar" ? "تم إنشاء الحساب بنجاح!" : "Account created successfully!");
       navigate("/admin");
-    } catch (error) {
-      toast.error(
-        language === "ar" 
-          ? "خطأ في اسم المستخدم أو كلمة المرور" 
-          : "Invalid username or password"
-      );
+    } catch (signUpError) {
+      // إذا كان الحساب موجود بالفعل، نحاول تسجيل الدخول
+      try {
+        await signIn("password", { 
+          flow: "signIn",
+          username, 
+          password 
+        });
+        
+        toast.success(language === "ar" ? "تم تسجيل الدخول بنجاح!" : "Login successful!");
+        navigate("/admin");
+      } catch (signInError) {
+        toast.error(
+          language === "ar" 
+            ? "خطأ في اسم المستخدم أو كلمة المرور" 
+            : "Invalid username or password"
+        );
+      }
     } finally {
       setIsLoading(false);
     }

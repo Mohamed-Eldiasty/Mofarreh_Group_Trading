@@ -40,8 +40,8 @@ export default function ServicesPage({ language }: ServicesPageProps) {
       ],
       futureProjects: [
         {
-          title: "بيع البرتبلات",
-          description: "قريباً: بيع وتأجير البرتبلات والحاويات",
+          title: "توريد وصيانة البرتبلات",
+          description: "قريباً: توريد وصيانة البرتبلات والحاويات بجودة عالية",
           icon: Home,
         },
         {
@@ -85,13 +85,13 @@ export default function ServicesPage({ language }: ServicesPageProps) {
       ],
       futureProjects: [
         {
-          title: "Portable Sales",
-          description: "Coming soon: Sale and rental of portables and containers",
+          title: "Portables Supply & Maintenance",
+          description: "Coming soon: High-quality supply and maintenance of portables and containers",
           icon: Home,
         },
         {
-          title: "Tire Recycling",
-          description: "Coming soon: Used tire recycling project",
+          title: "Tire Redevelopment",
+          description: "Coming soon: Used tire redevelopment project",
           icon: RotateCw,
         },
       ],

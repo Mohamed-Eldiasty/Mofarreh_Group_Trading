@@ -1,7 +1,8 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { Phone, MessageCircle, ArrowRight, Wrench, Recycle, Gavel } from "lucide-react";
+import { Phone, MessageCircle, ArrowRight, Wrench, Recycle, Gavel, Home, RotateCw } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 interface HomePageProps {
   language: "ar" | "en";
@@ -35,6 +36,11 @@ export default function HomePage({ language }: HomePageProps) {
         scrapDesc: "شراء وبيع السكراب بأفضل الأسعار",
         auctions: "المزادات",
         auctionsDesc: "مزادات منظمة وشفافة",
+        portables: "توريد وصيانة البرتبلات",
+        portablesDesc: "توريد وصيانة البرتبلات والحاويات",
+        tires: "إعادة تدوير الإطارات",
+        tiresDesc: "مشروع إعادة تدوير الإطارات المستعملة",
+        soon: "قريباً",
       },
       featured: {
         title: "المعدات المميزة",
@@ -58,6 +64,11 @@ export default function HomePage({ language }: HomePageProps) {
         scrapDesc: "Buy and sell scrap at the best prices",
         auctions: "Auctions",
         auctionsDesc: "Organized and transparent auctions",
+        portables: "Portables Supply & Maintenance",
+        portablesDesc: "Supply and maintenance of portables and containers",
+        tires: "Tire Redevelopment",
+        tiresDesc: "Used tire redevelopment project",
+        soon: "Coming Soon",
       },
       featured: {
         title: "Featured Equipment",
@@ -120,7 +131,7 @@ export default function HomePage({ language }: HomePageProps) {
       {/* Services Overview */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
             {/* Equipment */}
             <div className="group bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2 border border-gray-100 animate-fade-in-up">
               <div className="w-16 h-16 bg-gradient-to-br from-[#7c1f26] to-[#5a1519] rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg">
@@ -132,10 +143,10 @@ export default function HomePage({ language }: HomePageProps) {
               <p className="text-gray-600 text-start mb-4">
                 {content.sections.equipmentDesc}
               </p>
-              <a href="/equipment" className="flex items-center gap-2 text-[#7c1f26] font-semibold hover:gap-3 transition-all">
+              <Link to="/equipment" className="flex items-center gap-2 text-[#7c1f26] font-semibold hover:gap-3 transition-all">
                 {content.featured.viewAll}
                 <ArrowRight className="w-5 h-5" />
-              </a>
+              </Link>
             </div>
 
             {/* Scrap */}
@@ -149,10 +160,10 @@ export default function HomePage({ language }: HomePageProps) {
               <p className="text-gray-600 text-start mb-4">
                 {content.sections.scrapDesc}
               </p>
-              <a href="/scrap" className="flex items-center gap-2 text-green-600 font-semibold hover:gap-3 transition-all">
+              <Link to="/scrap" className="flex items-center gap-2 text-green-600 font-semibold hover:gap-3 transition-all">
                 {content.featured.viewAll}
                 <ArrowRight className="w-5 h-5" />
-              </a>
+              </Link>
             </div>
 
             {/* Auctions */}
@@ -166,10 +177,42 @@ export default function HomePage({ language }: HomePageProps) {
               <p className="text-gray-600 text-start mb-4">
                 {content.sections.auctionsDesc}
               </p>
-              <a href="/auctions" className="flex items-center gap-2 text-[#d4af37] font-semibold hover:gap-3 transition-all">
+              <Link to="/auctions" className="flex items-center gap-2 text-[#d4af37] font-semibold hover:gap-3 transition-all">
                 {content.featured.viewAll}
                 <ArrowRight className="w-5 h-5" />
-              </a>
+              </Link>
+            </div>
+
+            {/* Portables */}
+            <div className="group bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2 border border-gray-100 animate-fade-in-up delay-300">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg">
+                <Home className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold mb-3 text-start text-gray-900">
+                {content.sections.portables}
+              </h3>
+              <p className="text-gray-600 text-start mb-4">
+                {content.sections.portablesDesc}
+              </p>
+              <div className="flex items-center gap-2 text-gray-400 font-semibold">
+                {content.sections.soon}
+              </div>
+            </div>
+
+            {/* Tires */}
+            <div className="group bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2 border border-gray-100 animate-fade-in-up delay-400">
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-600 to-orange-700 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg">
+                <RotateCw className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold mb-3 text-start text-gray-900">
+                {content.sections.tires}
+              </h3>
+              <p className="text-gray-600 text-start mb-4">
+                {content.sections.tiresDesc}
+              </p>
+              <div className="flex items-center gap-2 text-gray-400 font-semibold">
+                {content.sections.soon}
+              </div>
             </div>
           </div>
         </div>

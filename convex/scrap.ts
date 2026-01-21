@@ -114,3 +114,19 @@ export const generateUploadUrl = mutation({
     return await ctx.storage.generateUploadUrl();
   },
 });
+
+// إحصائيات السكراب
+export const stats = query({
+  args: {},
+  handler: async (ctx) => {
+    const all = await ctx.db.query("scrap").collect();
+    const active = all.filter(s => s.status === "active").length;
+    const sold = all.filter(s => s.status === "sold").length;
+    
+    return {
+      total: all.length,
+      active,
+      sold,
+    };
+  },
+});
