@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { Authenticated, Unauthenticated, useMutation } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { SignInForm } from "../SignInForm";
-import { SignOutButton } from "../SignOutButton";
-import { Settings, Package, Recycle, Gavel, MessageSquare, Database } from "lucide-react";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { LogOut, Package, Recycle, Gavel, MessageSquare } from "lucide-react";
 import EquipmentManager from "../components/EquipmentManager";
 import ScrapManager from "../components/ScrapManager";
 
@@ -12,151 +12,159 @@ interface AdminDashboardProps {
 }
 
 export default function AdminDashboard({ language }: AdminDashboardProps) {
-  const [activeTab, setActiveTab] = useState<"equipment" | "scrap" | "auctions" | "messages">("equipment");
-  const seedAll = useMutation(api.seedData.seedAll);
-  const [seeding, setSeeding] = useState(false);
+  const user = useQuery(api.auth.loggedInUser);
+  const { signOut } = useAuthActions();
+  const navigate = useNavigate();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (user === null) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
 
   const t = {
     ar: {
       title: "لوحة الإدارة",
-      subtitle: "إدارة محتوى الموقع",
-      tabs: {
-        equipment: "المعدات",
-        scrap: "السكراب",
-        auctions: "المزادات",
-        messages: "الرسائل",
-      },
-      login: {
-        title: "تسجيل الدخول",
-        subtitle: "يجب تسجيل الدخول للوصول إلى لوحة الإدارة",
-      },
-      comingSoon: "قريباً",
+      welcome: "مرحباً",
+      logout: "تسجيل الخروج",
+      equipment: "إدارة المعدات",
+      scrap: "إدارة السكراب",
+      auctions: "إدارة المزادات",
+      messages: "الرسائل",
+      loading: "جاري التحميل...",
     },
     en: {
       title: "Admin Dashboard",
-      subtitle: "Manage website content",
-      tabs: {
-        equipment: "Equipment",
-        scrap: "Scrap",
-        auctions: "Auctions",
-        messages: "Messages",
-      },
-      login: {
-        title: "Login Required",
-        subtitle: "You must log in to access the admin dashboard",
-      },
-      comingSoon: "Coming Soon",
+      welcome: "Welcome",
+      logout: "Logout",
+      equipment: "Manage Equipment",
+      scrap: "Manage Scrap",
+      auctions: "Manage Auctions",
+      messages: "Messages",
+      loading: "Loading...",
     },
   };
 
   const content = t[language];
 
-  const handleSeedData = async () => {
-    setSeeding(true);
-    try {
-      await seedAll({});
-      alert(language === "ar" ? "تم إضافة البيانات التجريبية!" : "Sample data added!");
-    } catch (error) {
-      alert(language === "ar" ? "حدث خطأ" : "Error occurred");
-    } finally {
-      setSeeding(false);
-    }
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
   };
 
-  const tabs = [
-    { id: "equipment" as const, label: content.tabs.equipment, icon: Package },
-    { id: "scrap" as const, label: content.tabs.scrap, icon: Recycle },
-    { id: "auctions" as const, label: content.tabs.auctions, icon: Gavel },
-    { id: "messages" as const, label: content.tabs.messages, icon: MessageSquare },
-  ];
+  // Show loading while checking authentication
+  if (user === undefined) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7c1f26] mx-auto mb-4"></div>
+          <p className="text-gray-600">{content.loading}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // User is not logged in (null), redirect handled by useEffect
+  if (user === null) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Authenticated>
-          {/* Header */}
-          <div className="mb-8 animate-fade-in-up">
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h1 className="text-4xl font-bold text-gray-900 text-start">
-                  {content.title}
-                </h1>
-                <p className="text-lg text-gray-600 text-start mt-2">
-                  {content.subtitle}
-                </p>
-              </div>
-              <SignOutButton />
+        {/* Header */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2 text-start">
+                {content.title}
+              </h1>
+              <p className="text-gray-600 text-start">
+                {content.welcome}, {user.name || user.email}
+              </p>
             </div>
-            
             <button
-              onClick={handleSeedData}
-              disabled={seeding}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all disabled:opacity-50"
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl"
             >
-              <Database className="w-5 h-5" />
-              {seeding ? (language === "ar" ? "جاري..." : "Loading...") : (language === "ar" ? "إضافة بيانات تجريبية" : "Add Sample Data")}
+              <LogOut className="w-5 h-5" />
+              {content.logout}
             </button>
           </div>
+        </div>
 
-          {/* Tabs */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 animate-fade-in-up delay-100">
-            <div className="flex flex-wrap gap-2">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${
-                    activeTab === tab.id
-                      ? "bg-[#7c1f26] text-white shadow-lg"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  <tab.icon className="w-5 h-5" />
-                  {tab.label}
-                </button>
-              ))}
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-xl p-6 shadow-lg border-s-4 border-[#7c1f26]">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-[#7c1f26]/10 rounded-lg flex items-center justify-center">
+                <Package className="w-6 h-6 text-[#7c1f26]" />
+              </div>
+              <div className="text-start">
+                <p className="text-gray-600 text-sm">{content.equipment}</p>
+                <p className="text-2xl font-bold text-gray-900">-</p>
+              </div>
             </div>
           </div>
 
-          {/* Content */}
-          <div className="animate-fade-in-up delay-200">
-            {activeTab === "equipment" && <EquipmentManager language={language} />}
-            {activeTab === "scrap" && <ScrapManager language={language} />}
-            
-            {activeTab !== "equipment" && activeTab !== "scrap" && (
-              <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-                <Settings className="w-20 h-20 text-gray-400 mx-auto mb-6" />
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  {content.comingSoon}
-                </h2>
-                <p className="text-gray-600">
-                  {language === "ar" 
-                    ? "سيتم إضافة أدوات إدارة هذا القسم قريباً"
-                    : "Management tools for this section will be added soon"}
-                </p>
+          <div className="bg-white rounded-xl p-6 shadow-lg border-s-4 border-green-600">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-green-600/10 rounded-lg flex items-center justify-center">
+                <Recycle className="w-6 h-6 text-green-600" />
               </div>
-            )}
-          </div>
-        </Authenticated>
-
-        <Unauthenticated>
-          <div className="max-w-md mx-auto">
-            <div className="bg-white rounded-2xl shadow-xl p-8 animate-fade-in-up">
-              <div className="text-center mb-8">
-                <div className="w-20 h-20 bg-gradient-to-br from-[#7c1f26] to-[#5a1519] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <Settings className="w-10 h-10 text-white" />
-                </div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  {content.login.title}
-                </h1>
-                <p className="text-gray-600">
-                  {content.login.subtitle}
-                </p>
+              <div className="text-start">
+                <p className="text-gray-600 text-sm">{content.scrap}</p>
+                <p className="text-2xl font-bold text-gray-900">-</p>
               </div>
-              <SignInForm />
             </div>
           </div>
-        </Unauthenticated>
+
+          <div className="bg-white rounded-xl p-6 shadow-lg border-s-4 border-[#d4af37]">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-[#d4af37]/10 rounded-lg flex items-center justify-center">
+                <Gavel className="w-6 h-6 text-[#d4af37]" />
+              </div>
+              <div className="text-start">
+                <p className="text-gray-600 text-sm">{content.auctions}</p>
+                <p className="text-2xl font-bold text-gray-900">-</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-6 shadow-lg border-s-4 border-blue-600">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-600/10 rounded-lg flex items-center justify-center">
+                <MessageSquare className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="text-start">
+                <p className="text-gray-600 text-sm">{content.messages}</p>
+                <p className="text-2xl font-bold text-gray-900">-</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Management Sections */}
+        <div className="space-y-8">
+          {/* Equipment Manager */}
+          <div className="bg-white rounded-2xl shadow-lg p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-start flex items-center gap-3">
+              <Package className="w-7 h-7 text-[#7c1f26]" />
+              {content.equipment}
+            </h2>
+            <EquipmentManager language={language} />
+          </div>
+
+          {/* Scrap Manager */}
+          <div className="bg-white rounded-2xl shadow-lg p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-start flex items-center gap-3">
+              <Recycle className="w-7 h-7 text-green-600" />
+              {content.scrap}
+            </h2>
+            <ScrapManager language={language} />
+          </div>
+        </div>
       </div>
     </div>
   );

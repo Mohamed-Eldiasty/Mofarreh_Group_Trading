@@ -1,6 +1,7 @@
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Phone, MessageCircle, ArrowRight, Wrench, Recycle, Gavel } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface HomePageProps {
   language: "ar" | "en";
@@ -8,6 +9,15 @@ interface HomePageProps {
 
 export default function HomePage({ language }: HomePageProps) {
   const featuredEquipment = useQuery(api.equipment.featured);
+  const seedAll = useMutation(api.seedData.seedAll);
+  const [hasSeeded, setHasSeeded] = useState(false);
+
+  // Auto-seed data on first visit if no equipment exists
+  useEffect(() => {
+    if (featuredEquipment !== undefined && featuredEquipment.length === 0 && !hasSeeded) {
+      seedAll({}).then(() => setHasSeeded(true)).catch(() => {});
+    }
+  }, [featuredEquipment, hasSeeded, seedAll]);
 
   const t = {
     ar: {

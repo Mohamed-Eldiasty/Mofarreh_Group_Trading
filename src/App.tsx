@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { Toaster } from "sonner";
 import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
@@ -12,7 +13,8 @@ import ScrapDetailPage from "./pages/ScrapDetailPage";
 import AuctionsPage from "./pages/AuctionsPage";
 import ContactPage from "./pages/ContactPage";
 import AdminDashboard from "./pages/AdminDashboard";
-import { Menu, X, Globe } from "lucide-react";
+import LoginPage from "./pages/LoginPage";
+import { Menu, X, Globe, LogIn } from "lucide-react";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
@@ -48,7 +50,7 @@ function App() {
   const navItems = navigation[language];
 
   return (
-    <ConvexProvider client={convex}>
+    <ConvexAuthProvider client={convex}>
       <Router>
         <div className={`min-h-screen ${language === "ar" ? "font-[Tajawal]" : ""}`} dir={language === "ar" ? "rtl" : "ltr"}>
           <Toaster position={language === "ar" ? "top-left" : "top-right"} richColors />
@@ -80,6 +82,16 @@ function App() {
                       {item.name}
                     </Link>
                   ))}
+                  
+                  {/* Login Button */}
+                  <Link
+                    to="/login"
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#7c1f26] to-[#5a1519] text-white rounded-lg font-semibold hover:shadow-lg transition-all"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    <span>{language === "ar" ? "دخول" : "Login"}</span>
+                  </Link>
+                  
                   <button
                     onClick={toggleLanguage}
                     className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
@@ -112,6 +124,17 @@ function App() {
                         {item.name}
                       </Link>
                     ))}
+                    
+                    {/* Mobile Login Button */}
+                    <Link
+                      to="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#7c1f26] to-[#5a1519] text-white rounded-lg font-semibold w-fit"
+                    >
+                      <LogIn className="w-4 h-4" />
+                      <span>{language === "ar" ? "دخول" : "Login"}</span>
+                    </Link>
+                    
                     <button
                       onClick={() => {
                         toggleLanguage();
@@ -139,6 +162,7 @@ function App() {
             <Route path="/scrap/:slug" element={<ScrapDetailPage language={language} />} />
             <Route path="/auctions" element={<AuctionsPage language={language} />} />
             <Route path="/contact" element={<ContactPage language={language} />} />
+            <Route path="/login" element={<LoginPage language={language} />} />
             <Route path="/admin" element={<AdminDashboard language={language} />} />
           </Routes>
 
@@ -207,7 +231,7 @@ function App() {
           </footer>
         </div>
       </Router>
-    </ConvexProvider>
+    </ConvexAuthProvider>
   );
 }
 

@@ -1,4 +1,5 @@
 import { mutation } from "./_generated/server";
+import { Password } from "@convex-dev/auth/providers/Password";
 
 // إضافة بيانات تجريبية للمعدات
 export const seedEquipment = mutation({
@@ -175,6 +176,28 @@ export const seedScrap = mutation({
     }
 
     return { success: true, count: sampleScrap.length };
+  },
+});
+
+// إنشاء حساب المسؤول التجريبي
+export const createDemoAdmin = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const existingUser = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("name"), "admin"))
+      .first();
+    
+    if (existingUser) {
+      return { message: "المستخدم موجود بالفعل" };
+    }
+
+    const userId = await ctx.db.insert("users", {
+      name: "admin",
+      email: "admin@mofarrehgroup.com",
+    });
+
+    return { success: true, userId };
   },
 });
 
