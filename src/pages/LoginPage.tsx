@@ -1,8 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthActions } from "@convex-dev/auth/react";
-import { useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
 import { LogIn, Lock, User } from "lucide-react";
 
@@ -16,7 +14,6 @@ export default function LoginPage({ language }: LoginPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useAuthActions();
   const navigate = useNavigate();
-  // لا حاجة لإنشاء حساب تجريبي - سيتم التسجيل يدوياً
 
   const t = {
     ar: {
@@ -27,6 +24,8 @@ export default function LoginPage({ language }: LoginPageProps) {
       loginButton: "دخول",
       loggingIn: "جاري تسجيل الدخول...",
       backToHome: "العودة للرئيسية",
+      demoTitle: "🔑 بيانات الدخول التجريبية",
+      note: "ملاحظة: إذا كانت هذه أول مرة، سيتم إنشاء حساب جديد تلقائياً",
     },
     en: {
       title: "Login",
@@ -36,6 +35,8 @@ export default function LoginPage({ language }: LoginPageProps) {
       loginButton: "Login",
       loggingIn: "Logging in...",
       backToHome: "Back to Home",
+      demoTitle: "🔑 Demo Credentials",
+      note: "Note: If this is your first time, an account will be created automatically",
     },
   };
 
@@ -46,31 +47,32 @@ export default function LoginPage({ language }: LoginPageProps) {
     setIsLoading(true);
 
     try {
-      // محاولة إنشاء حساب جديد أولاً (للمرة الأولى فقط)
+      // محاولة تسجيل الدخول أولاً
       await signIn("password", { 
-        flow: "signUp",
+        flow: "signIn",
         username, 
         password 
       });
       
-      toast.success(language === "ar" ? "تم إنشاء الحساب بنجاح!" : "Account created successfully!");
+      toast.success(language === "ar" ? "تم تسجيل الدخول بنجاح! ✅" : "Login successful! ✅");
       navigate("/admin");
-    } catch (signUpError) {
-      // إذا كان الحساب موجود بالفعل، نحاول تسجيل الدخول
+    } catch (signInError: any) {
+      // إذا فشل تسجيل الدخول، نحاول إنشاء حساب جديد
       try {
         await signIn("password", { 
-          flow: "signIn",
+          flow: "signUp",
           username, 
           password 
         });
         
-        toast.success(language === "ar" ? "تم تسجيل الدخول بنجاح!" : "Login successful!");
+        toast.success(language === "ar" ? "تم إنشاء الحساب بنجاح! ✅" : "Account created successfully! ✅");
         navigate("/admin");
-      } catch (signInError) {
+      } catch (signUpError: any) {
+        // فشل كلا المحاولتين
         toast.error(
           language === "ar" 
-            ? "خطأ في اسم المستخدم أو كلمة المرور" 
-            : "Invalid username or password"
+            ? "خطأ في اسم المستخدم أو كلمة المرور ❌" 
+            : "Invalid username or password ❌"
         );
       }
     } finally {
@@ -167,9 +169,9 @@ export default function LoginPage({ language }: LoginPageProps) {
         {/* Demo Credentials */}
         <div className="mt-6 text-center text-sm bg-gradient-to-r from-[#7c1f26]/10 to-[#5a1519]/10 backdrop-blur-sm rounded-lg p-4 border border-[#7c1f26]/20">
           <p className="font-bold text-[#7c1f26] mb-2">
-            {language === "ar" ? "🔑 بيانات الدخول التجريبية" : "🔑 Demo Credentials"}
+            {content.demoTitle}
           </p>
-          <div className="space-y-1 text-gray-700">
+          <div className="space-y-1 text-gray-700 mb-3">
             <p>
               <span className="font-semibold">{content.username}:</span> admin
             </p>
@@ -177,6 +179,9 @@ export default function LoginPage({ language }: LoginPageProps) {
               <span className="font-semibold">{content.password}:</span> admin123
             </p>
           </div>
+          <p className="text-xs text-gray-600 italic">
+            {content.note}
+          </p>
         </div>
       </div>
     </div>
