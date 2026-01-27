@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { Calendar, MapPin, Filter } from "lucide-react";
+import { Calendar, MapPin, Filter, FileText, Download } from "lucide-react";
 
 interface AuctionsPageProps {
   language: "ar" | "en";
@@ -34,6 +34,8 @@ export default function AuctionsPage({ language }: AuctionsPageProps) {
       startDate: "تاريخ البداية",
       endDate: "تاريخ النهاية",
       noResults: "لا توجد نتائج",
+      attachments: "الملفات المرفقة",
+      download: "تحميل",
     },
     en: {
       title: "Auctions",
@@ -52,6 +54,8 @@ export default function AuctionsPage({ language }: AuctionsPageProps) {
       startDate: "Start Date",
       endDate: "End Date",
       noResults: "No results found",
+      attachments: "Attachments",
+      download: "Download",
     },
   };
 
@@ -76,7 +80,7 @@ export default function AuctionsPage({ language }: AuctionsPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-12 animate-fade-in-up">
@@ -190,6 +194,36 @@ export default function AuctionsPage({ language }: AuctionsPageProps) {
                   <p className="text-gray-600 text-start line-clamp-3 mb-4">
                     {language === "ar" ? item.descriptionAr : item.descriptionEn}
                   </p>
+
+                  {/* Attachments */}
+                  {item.attachmentsWithUrls && item.attachmentsWithUrls.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <div className="flex items-center gap-2 mb-3">
+                        <FileText className="w-4 h-4 text-[#d4af37]" />
+                        <span className="text-sm font-semibold text-gray-700">{content.attachments}</span>
+                      </div>
+                      <div className="space-y-2">
+                        {item.attachmentsWithUrls.map((att, idx) => (
+                          <a
+                            key={idx}
+                            href={att.url || "#"}
+                            download
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-between gap-2 p-3 bg-gray-50 hover:bg-[#d4af37]/10 rounded-lg transition-colors group"
+                          >
+                            <div className="flex items-center gap-2 flex-1">
+                              <FileText className="w-4 h-4 text-gray-600 group-hover:text-[#d4af37]" />
+                              <span className="text-sm text-gray-700 group-hover:text-[#d4af37] font-medium">
+                                {language === "ar" ? att.nameAr : att.nameEn}
+                              </span>
+                            </div>
+                            <Download className="w-4 h-4 text-gray-400 group-hover:text-[#d4af37]" />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

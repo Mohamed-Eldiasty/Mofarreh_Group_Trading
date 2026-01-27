@@ -22,17 +22,29 @@ export const list = query({
       filtered = filtered.filter((a) => a.kind === args.kind);
     }
 
-    // جلب روابط الصور
+    // جلب روابط الصور والملفات
     const withImages = await Promise.all(
       filtered.map(async (item) => {
         const heroUrl = await ctx.storage.getUrl(item.heroImage);
         const galleryUrls = await Promise.all(
           item.gallery.map((id) => ctx.storage.getUrl(id))
         );
+        
+        // جلب روابط الملفات المرفقة
+        const attachmentsWithUrls = item.attachments
+          ? await Promise.all(
+              item.attachments.map(async (att) => ({
+                ...att,
+                url: await ctx.storage.getUrl(att.fileId),
+              }))
+            )
+          : [];
+        
         return {
           ...item,
           heroUrl,
           galleryUrls: galleryUrls.filter((url): url is string => url !== null),
+          attachmentsWithUrls: attachmentsWithUrls.filter((att) => att.url !== null),
         };
       })
     );
@@ -57,10 +69,21 @@ export const getBySlug = query({
       auction.gallery.map((id) => ctx.storage.getUrl(id))
     );
 
+    // جلب روابط الملفات المرفقة
+    const attachmentsWithUrls = auction.attachments
+      ? await Promise.all(
+          auction.attachments.map(async (att) => ({
+            ...att,
+            url: await ctx.storage.getUrl(att.fileId),
+          }))
+        )
+      : [];
+
     return {
       ...auction,
       heroUrl,
       galleryUrls: galleryUrls.filter((url): url is string => url !== null),
+      attachmentsWithUrls: attachmentsWithUrls.filter((att) => att.url !== null),
     };
   },
 });
@@ -83,6 +106,12 @@ export const create = mutation({
     termsAr: v.optional(v.string()),
     termsEn: v.optional(v.string()),
     mapUrl: v.optional(v.string()),
+    attachments: v.optional(v.array(v.object({
+      fileId: v.id("_storage"),
+      nameAr: v.string(),
+      nameEn: v.string(),
+      type: v.string(),
+    }))),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);

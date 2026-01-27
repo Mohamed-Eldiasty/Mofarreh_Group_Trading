@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { LogOut, Package, Recycle, Gavel, MessageSquare, TrendingUp } from "lucide-react";
 import EquipmentManager from "../components/EquipmentManager";
 import ScrapManager from "../components/ScrapManager";
+import AuctionsManager from "../components/AuctionsManager";
 
 interface AdminDashboardProps {
   language: "ar" | "en";
@@ -41,6 +42,7 @@ export default function AdminDashboard({ language }: AdminDashboardProps) {
       total: "الإجمالي",
       manageEquipment: "إدارة المعدات",
       manageScrap: "إدارة السكراب",
+      manageAuctions: "إدارة المزادات",
       overview: "نظرة عامة",
     },
     en: {
@@ -58,6 +60,7 @@ export default function AdminDashboard({ language }: AdminDashboardProps) {
       total: "Total",
       manageEquipment: "Manage Equipment",
       manageScrap: "Manage Scrap",
+      manageAuctions: "Manage Auctions",
       overview: "Overview",
     },
   };
@@ -212,6 +215,17 @@ export default function AdminDashboard({ language }: AdminDashboardProps) {
               {content.manageScrap}
             </h2>
             <ScrapManager language={language} />
+          </div>
+
+          {/* Auctions Manager */}
+          <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-start flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#d4af37] to-[#b8941f] rounded-lg flex items-center justify-center">
+                <Gavel className="w-6 h-6 text-white" />
+              </div>
+              {content.manageAuctions}
+            </h2>
+            <AuctionsManager language={language} />
           </div>
         </div>
       </div>

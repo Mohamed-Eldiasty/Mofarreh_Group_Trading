@@ -64,6 +64,12 @@ const applicationTables = {
     termsAr: v.optional(v.string()),
     termsEn: v.optional(v.string()),
     mapUrl: v.optional(v.string()),
+    attachments: v.optional(v.array(v.object({
+      fileId: v.id("_storage"),
+      nameAr: v.string(),
+      nameEn: v.string(),
+      type: v.string(), // pdf, excel, word, etc
+    }))),
   })
     .index("by_slug", ["slug"])
     .index("by_status", ["status"]),

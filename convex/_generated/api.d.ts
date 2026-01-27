@@ -17,6 +17,7 @@ import type * as router from "../router.js";
 import type * as scrap from "../scrap.js";
 import type * as seedData from "../seedData.js";
 import type * as settings from "../settings.js";
+import type * as users from "../users.js";
 
 import type {
   ApiFromModules,
@@ -42,6 +43,7 @@ declare const fullApi: ApiFromModules<{
   scrap: typeof scrap;
   seedData: typeof seedData;
   settings: typeof settings;
+  users: typeof users;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 
